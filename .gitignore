@@ -1,0 +1,12 @@
+.DS_Store
+build/
+dist/
+*.log
+tests/*.wav
+tests/*.png
+tests/render_test
+tests/edge_test
+Rebuild Platter.app/
+Check Platter.command
+check*.log
+Publish Platter.app/

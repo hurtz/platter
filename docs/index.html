@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Platter is a free, open source menu bar app that gives your Mac real hard drive sounds: seeks, spin up and an activity light, driven by your Mac's real disk activity.">
+<meta property="og:title" content="Platter: real hard drive sounds for your Mac">
+<meta property="og:description" content="Free and open source. Six drives from a 5.25 inch floppy to a 15K server disk, driven by what your Mac is actually doing.">
+<meta property="og:image" content="https://hurtz.github.io/platter/poster.jpg">
+<meta property="og:url" content="https://hurtz.github.io/platter/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="icon.png">
+<title>Platter for Mac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a beige PC case front. The page reads top to bottom like a tower:
+   label strip with LEDs, the hero bay, a demo screen set into a bezel,
+   six drive bays, then the install card. */
+:root {
+  --case: #e6dfcc;        /* putty plastic */
+  --case-2: #d9d1ba;      /* recessed bays */
+  --case-3: #f1ecdf;      /* raised highlights, key caps */
+  --groove: #c3b99f;      /* molded lines */
+  --ink: #27231d;
+  --ink-2: #675f50;
+  --bezel: #1b1a17;
+  --bezel-ink: #efe9da;
+  --amber: #e8900c;
+  --green: #1f9e4e;
+  --seg: #d8321f;         /* seven segment red */
+  --focus: #1a64d6;
+  --shadow: 0 1px 0 rgba(255,255,255,.65) inset, 0 -1px 0 rgba(0,0,0,.06) inset, 0 14px 30px -18px rgba(60,48,25,.45);
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --case: #1d1c19; --case-2: #25231f; --case-3: #302d27; --groove: #3b372f;
+    --ink: #eee7d6; --ink-2: #a59c89; --bezel: #0c0c0b; --bezel-ink: #efe9da;
+    --amber: #ffa526; --green: #3ad070; --seg: #ff4a33; --focus: #6aa5ff;
+    --shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 18px 34px -20px rgba(0,0,0,.8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --case: #1d1c19; --case-2: #25231f; --case-3: #302d27; --groove: #3b372f;
+  --ink: #eee7d6; --ink-2: #a59c89; --bezel: #0c0c0b; --bezel-ink: #efe9da;
+  --amber: #ffa526; --green: #3ad070; --seg: #ff4a33; --focus: #6aa5ff;
+  --shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 18px 34px -20px rgba(0,0,0,.8);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--case);
+  color: var(--ink);
+  font: 400 17px/1.55 var(--body);
+  padding-inline: 20px;
+  padding-block: 0 48px;
+  background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.012) 3px 4px);
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 72px; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+
+/* label strip */
+.strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding-block: 18px; border-bottom: 2px solid var(--groove); }
+.badge { font: 800 15px/1 var(--display); font-stretch: 125%; letter-spacing: .32em; text-transform: uppercase; }
+.leds { display: flex; gap: 22px; align-items: center; font: 600 12px/1 var(--mono); letter-spacing: .18em; color: var(--ink-2); }
+.led { display: inline-flex; align-items: center; gap: 9px; }
+.led i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
+.led.power i { background: var(--green); box-shadow: 0 0 0 2px rgba(0,0,0,.25), 0 0 10px var(--green); }
+.led.hdd i { background: var(--amber); animation: hdd 2.6s steps(1) infinite; }
+@keyframes hdd {
+  0%,7%,9%,22%,26%,27%,48%,50%,53%,71%,74%,88% { opacity: 1; box-shadow: 0 0 0 2px rgba(0,0,0,.25), 0 0 12px var(--amber); }
+  4%,8%,12%,24%,26.5%,35%,49%,51%,60%,72%,80%,95% { opacity: .18; box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
+}
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 48px; align-items: center; }
+.eyebrow { font: 600 13px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 18px; }
+h1 { font: 850 clamp(44px, 7vw, 86px)/.95 var(--display); font-stretch: 112%; letter-spacing: -.02em; margin: 0 0 22px; text-wrap: balance; }
+.lede { font-size: 20px; color: var(--ink-2); max-width: 34em; margin: 0 0 30px; }
+.lede strong { color: var(--ink); font-weight: 600; }
+.cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.key {
+  appearance: none; border: 0; cursor: pointer; font: 700 18px/1 var(--display); font-stretch: 108%;
+  color: var(--ink); background: var(--case-3); padding: 18px 26px; border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 -3px 0 var(--groove) inset, 0 6px 0 -1px var(--groove), 0 16px 24px -14px rgba(60,48,25,.6);
+  transition: transform .06s, box-shadow .06s; display: inline-flex; align-items: center; gap: 12px;
+}
+.key:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 -2px 0 var(--groove) inset, 0 2px 0 -1px var(--groove); }
+.key.primary { background: var(--bezel); color: var(--bezel-ink); box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 6px 0 -1px #000, 0 16px 26px -12px rgba(0,0,0,.55); }
+.key.primary:active { box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 2px 0 -1px #000; }
+.join { display: flex; flex-direction: column; gap: 0; }
+.ideas { list-style: none; padding: 0; margin: 0 0 30px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 24px; }
+.ideas li { font: 500 15px/1.4 var(--mono); color: var(--ink-2); padding-left: 20px; position: relative; min-width: 0; }
+.ideas li::before { content: ""; position: absolute; left: 0; top: .45em; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+footer a { text-decoration: none; }
+.specs a { color: var(--ink); text-underline-offset: 3px; }
+a.key { text-decoration: none; }
+.key .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+.link { font: 600 16px/1 var(--body); text-decoration: underline; text-underline-offset: 4px; }
+.specs { font: 500 13px/1.6 var(--mono); color: var(--ink-2); margin: 18px 0 0; letter-spacing: .02em; }
+.status { min-height: 1.6em; font: 500 14px/1.5 var(--body); color: var(--ink-2); margin: 10px 0 0; }
+.shot { margin: 0; border-radius: 22px; overflow: hidden; background: var(--bezel); box-shadow: var(--shadow), 0 30px 60px -30px rgba(40,30,10,.6); max-width: 100%; }
+.shot img { display: block; width: 100%; height: auto; }
+
+/* demo bezel */
+.bezel { background: var(--bezel); border-radius: 26px; padding: 22px 22px 16px; box-shadow: var(--shadow), 0 40px 70px -40px rgba(0,0,0,.7); color: var(--bezel-ink); }
+.bezel video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #000; max-width: 100%; }
+.bezel .under { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 4px 0; font: 600 12px/1.3 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: #a49c8a; }
+.bezel .under button, .bezel .under a { appearance: none; border: 1px solid #3a372f; background: transparent; color: var(--bezel-ink); font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+.bezel .under button:hover, .bezel .under a:hover { border-color: #6a6455; }
+.bezel .under a { text-decoration: none; display: inline-block; }
+
+/* sections */
+h2 { font: 800 clamp(32px, 4.5vw, 52px)/1 var(--display); font-stretch: 115%; letter-spacing: -.015em; margin: 0 0 10px; text-wrap: balance; }
+.sub { color: var(--ink-2); margin: 0 0 28px; max-width: 40em; }
+
+.bays { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.bay { background: var(--case-2); border-radius: 14px; padding: 20px 20px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; min-width: 0; position: relative; }
+.bay::after { content: ""; position: absolute; left: 20px; right: 20px; top: 54px; height: 6px; border-radius: 3px; background: rgba(0,0,0,.55); box-shadow: 0 1px 0 rgba(255,255,255,.5); opacity: .8; }
+.bay header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.bay h3 { font: 750 21px/1.15 var(--display); font-stretch: 105%; margin: 0; }
+.bay .era { font: 500 12px/1 var(--mono); color: var(--ink-2); letter-spacing: .06em; white-space: nowrap; }
+.bay p { margin: 26px 0 0; color: var(--ink-2); font-size: 15.5px; }
+.bay .rpm { margin-top: auto; padding-top: 10px; display: flex; align-items: baseline; gap: 8px; }
+.bay .rpm b { font: 600 26px/1 var(--mono); color: var(--seg); letter-spacing: .04em; text-shadow: 0 0 10px color-mix(in srgb, var(--seg) 45%, transparent); font-variant-numeric: tabular-nums; }
+.bay .rpm span { font: 500 12px/1 var(--mono); color: var(--ink-2); letter-spacing: .12em; }
+
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.mode { border-top: 2px solid var(--groove); padding-top: 16px; min-width: 0; }
+.mode h3 { font: 700 18px/1.2 var(--display); font-stretch: 108%; margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+.mode p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.legend { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 26px; font: 500 14px/1.4 var(--mono); color: var(--ink-2); }
+.legend span { display: inline-flex; gap: 10px; align-items: center; }
+.legend i { width: 12px; height: 12px; border-radius: 50%; }
+.legend .r i { background: var(--green); box-shadow: 0 0 10px var(--green); }
+.legend .w i { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+
+.install { background: var(--case-3); border-radius: 22px; padding: clamp(22px, 4vw, 40px); box-shadow: var(--shadow); }
+.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 18px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: start; }
+.steps li::before { content: counter(s); font: 600 22px/44px var(--mono); color: var(--seg); text-align: center; background: var(--bezel); border-radius: 8px; height: 44px; }
+.steps b { font-weight: 600; }
+.steps p { margin: 0; }
+.steps .note { color: var(--ink-2); font-size: 15px; margin-top: 4px; }
+.cmd { display: flex; gap: 10px; align-items: stretch; margin-top: 10px; flex-wrap: wrap; }
+.cmd code { flex: 1 1 280px; min-width: 0; overflow-x: auto; white-space: nowrap; font: 500 14px/1.4 var(--mono); background: var(--bezel); color: var(--bezel-ink); padding: 12px 14px; border-radius: 8px; }
+.cmd button { appearance: none; border: 1px solid var(--groove); background: var(--case); color: var(--ink); font: 600 13px/1 var(--mono); padding: 0 14px; border-radius: 8px; cursor: pointer; min-height: 42px; }
+
+footer { border-top: 2px solid var(--groove); padding-top: 22px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font: 500 13px/1.5 var(--mono); color: var(--ink-2); letter-spacing: .04em; }
+footer strong { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .bays { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modes { grid-template-columns: minmax(0, 1fr); }
+  .ideas { grid-template-columns: minmax(0, 1fr); }
+  .wrap { gap: 56px; }
+}
+@media (max-width: 560px) {
+  .bays { grid-template-columns: minmax(0, 1fr); }
+  .bezel { padding: 12px 12px 10px; border-radius: 18px; }
+  .lede { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .led.hdd i { animation: none; } .key { transition: none; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="strip">
+    <span class="badge">Platter</span>
+    <span class="leds" aria-hidden="true">
+      <span class="led power"><i></i>POWER</span>
+      <span class="led hdd"><i></i>HDD</span>
+    </span>
+  </div>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">A menu bar app for macOS</p>
+      <h1>Your Mac is too quiet.</h1>
+      <p class="lede">Platter puts a mechanical hard drive in your menu bar. <strong>Real seeks, real spin up, a real activity light</strong>, all driven by what your Mac is actually reading and writing.</p>
+      <div class="cta">
+        <a class="key primary" href="https://github.com/hurtz/platter/releases/latest/download/Platter.zip"><span class="dot" aria-hidden="true"></span>Download free</a>
+        <a class="key" href="https://github.com/hurtz/platter">Source on GitHub</a>
+        <a class="link" href="#demo">Watch the demo</a>
+      </div>
+      <p class="specs">Free and open source &middot; macOS 13 or later &middot; Apple Silicon and Intel &middot; 1.1 MB<br>by <a href="https://github.com/hurtz">Jason O&rsquo;Connell</a></p>
+    </div>
+    <figure class="shot">
+      <img src="popover.jpg" width="830" height="960" alt="The Platter panel open under its menu bar icon, with the IDE drive selected and the write light on.">
+    </figure>
+  </section>
+
+  <section id="demo" aria-labelledby="demo-h">
+    <h2 id="demo-h">Remember this sound?</h2>
+    <p class="sub">Fifty three seconds. Turn your sound on.</p>
+    <div class="bezel">
+      <video id="promo" src="promo.mp4" poster="poster.jpg" controls playsinline preload="metadata"></video>
+      <div class="under">
+        <span>Demo &middot; 1080p &middot; sound on</span>
+        <a href="promo.mp4" download="Platter-Promo.mp4">Save the video</a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="bays-h">
+    <h2 id="bays-h">Six drives. One switch.</h2>
+    <p class="sub">Every drive is synthesized live, from the spindle motor and bearings to the actuator arm hitting its stops. Nothing is a recording, so no two seeks sound the same.</p>
+    <div class="bays">
+      <article class="bay"><header><h3>3.5&Prime; Floppy</h3><span class="era">1.44 MB &middot; 1990s</span></header><p>Stepper buzz hunting for track zero, then a tick every time it moves a track.</p><div class="rpm"><b>300</b><span>RPM</span></div></article>
+      <article class="bay"><header><h3>5.25&Prime; Floppy</h3><span class="era">360 KB &middot; 1980s</span></header><p>Head load solenoid, belt drive hum, and the head banging its stop on every recalibrate.</p><div class="rpm"><b>300</b><span>RPM</span></div></article>
+      <article class="bay"><header><h3>Stepper HDD</h3><span class="era">20 MB MFM &middot; 1986</span></header><p>Zzzzt, chunk. A stepper motor that walks the heads one track at a time.</p><div class="rpm"><b>3600</b><span>RPM</span></div></article>
+      <article class="bay"><header><h3>IDE Drive</h3><span class="era">540 MB &middot; 1995</span></header><p>The grind you heard every time a program loaded. Ball bearings, loud seeks, the occasional recalibration.</p><div class="rpm"><b>5400</b><span>RPM</span></div></article>
+      <article class="bay"><header><h3>Desktop HDD</h3><span class="era">250 GB &middot; 2005</span></header><p>Crisp little ticks and a soft whine. Peak LAN party.</p><div class="rpm"><b>7200</b><span>RPM</span></div></article>
+      <article class="bay"><header><h3>Server 15K</h3><span class="era">146 GB SAS</span></header><p>A datacenter aisle at arm&rsquo;s length. Fast, dense seeks over a high spindle whine.</p><div class="rpm"><b>15000</b><span>RPM</span></div></article>
+    </div>
+  </section>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">It listens to your Mac.</h2>
+    <p class="sub">Platter reads the same disk counters Activity Monitor shows and turns every burst into seeks, settles and rotational waits, the way a real drive would service them.</p>
+    <div class="modes">
+      <div class="mode"><h3>Live</h3><p>Follows your Mac&rsquo;s real reads and writes. Copy a big folder and it grinds. Leave it alone and it mostly hums.</p></div>
+      <div class="mode"><h3>Ambient</h3><p>An idle computer from 1997: the odd read, a write flush now and then.</p></div>
+      <div class="mode"><h3>Busy</h3><p>A heavy workload on loop, like installing software from a stack of disks.</p></div>
+    </div>
+    <div class="legend"><span class="r"><i></i>green light: reading</span><span class="w"><i></i>amber light: writing</span><span>no network access &middot; no tracking</span></div>
+  </section>
+
+  <section class="install" aria-labelledby="inst-h">
+    <h2 id="inst-h">Install in a minute</h2>
+    <p class="sub">Platter is free and not sold through the App Store, so macOS asks you to confirm it the first time.</p>
+    <ol class="steps">
+      <li><div><p><b>Download and unzip</b> Platter-1.0.zip.</p></div></li>
+      <li><div><p><b>Drag Platter into Applications.</b></p></div></li>
+      <li><div><p><b>Open it once.</b> If macOS says it can&rsquo;t verify the developer, open System Settings, go to Privacy &amp; Security, scroll down and click <b>Open Anyway</b>.</p>
+        <p class="note">Or skip that step by pasting this into Terminal:</p>
+        <div class="cmd"><code id="cmd">xattr -dr com.apple.quarantine /Applications/Platter.app</code><button type="button" id="copy">Copy</button></div></div></li>
+      <li><div><p><b>Click the little drive in your menu bar</b> and flip the switch. Right click the icon any time to turn it on or off.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="join" aria-labelledby="join-h">
+    <h2 id="join-h">Come make it better.</h2>
+    <p class="sub">Platter is free and open source. The whole sound engine is one small C file, so adding a drive is mostly tuning numbers until it sounds right. Bring your ears.</p>
+    <ul class="ideas">
+      <li>Iomega Zip drive, click of death included</li>
+      <li>CD-ROM spin up and tray</li>
+      <li>Laptop drives that park their heads</li>
+      <li>Tape drives and Amiga floppies</li>
+      <li>Your own custom drive profiles</li>
+      <li>Signed and notarized builds</li>
+    </ul>
+    <div class="cta">
+      <a class="key primary" href="https://github.com/hurtz/platter"><span class="dot" aria-hidden="true"></span>Star and fork on GitHub</a>
+      <a class="key" href="https://github.com/hurtz/platter/issues/new">Pitch an idea</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Platter 1.0 &middot; by <a href="https://github.com/hurtz"><strong>Jason O&rsquo;Connell</strong></a> &middot; MIT license</span>
+    <span>No accounts. No network. Just noise.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const copyBtn = document.getElementById('copy');
+  copyBtn.addEventListener('click', async () => {
+    const txt = document.getElementById('cmd').textContent;
+    try { await navigator.clipboard.writeText(txt); copyBtn.textContent = 'Copied'; }
+    catch (e) { const r = document.createRange(); r.selectNodeContents(document.getElementById('cmd')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); copyBtn.textContent = 'Selected'; }
+    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1800);
+  });
+})();
+</script>
+
+</body>
+</html>
